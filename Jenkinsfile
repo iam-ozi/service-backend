@@ -6,7 +6,7 @@ pipeline {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credentials ID for DockerHub
     SONAR_TOKEN = credentials('sonarcloud-token') // Jenkins credentials ID for SonarCloud token
     NEXUS_CREDS = credentials('nexus-creds') // Jenkins credentials ID for Nexus user/pass
-    NEXUS_HOST = 'http://98.84.104.42:8081'
+    NEXUS_HOST = 'http://54.157.20.254:8081'
   }
 
   stages {
