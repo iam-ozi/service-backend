@@ -5,7 +5,7 @@ pipeline {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credentials ID for DockerHub
     SONAR_TOKEN = credentials('sonarcloud-token') // Jenkins credentials ID for SonarCloud token
-    NEXUS_CREDS = credentials('nexus-creds') / Jenkins credentials ID for Nexus user/pass
+    NEXUS_CREDS = credentials('nexus-creds') // Jenkins credentials ID for Nexus user/pass
     NEXUS_HOST = 'http://54.159.41.107:8081'
   }
 
@@ -17,6 +17,9 @@ pipeline {
     }
 
     stage('Build Java Backend') {
+      when {
+        branch 'main'
+      }
       steps {
         dir('java-app') {
           sh './mvnw clean package -DskipTests'
@@ -26,6 +29,9 @@ pipeline {
     }
 
     stage('Build Node Backend') {
+      when {
+        branch 'main'
+      }
       steps {
         dir('node-app') {
           sh 'npm install'
@@ -35,6 +41,9 @@ pipeline {
     }
 
     stage('SonarCloud Analysis') {
+      when {
+        branch 'main'
+      }
       steps {
         withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
           sh 'sonar-scanner -Dproject.settings=sonar-project.properties'
@@ -43,6 +52,9 @@ pipeline {
     }
 
     stage('Publish to Nexus') {
+      when {
+        branch 'main'
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
           sh '''
@@ -62,6 +74,9 @@ pipeline {
     }
 
     stage('Build Docker Images') {
+      when {
+        branch 'main'
+      }
       steps {
         script {
           docker.build("iamozi2025/java-ap:${IMAGE_TAG}", 'java-app')
@@ -71,6 +86,9 @@ pipeline {
     }
 
     stage('Push Docker Images') {
+      when {
+        branch 'main'
+      }
       steps {
         script {
           docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
