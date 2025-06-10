@@ -18,7 +18,9 @@ pipeline {
 
     stage('Build Java Backend') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         dir('java-app') {
@@ -30,7 +32,9 @@ pipeline {
 
     stage('Build Node Backend') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         dir('node-app') {
@@ -42,7 +46,9 @@ pipeline {
 
     stage('SonarCloud Analysis') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
@@ -53,7 +59,9 @@ pipeline {
 
     stage('Publish to Nexus') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
@@ -75,7 +83,9 @@ pipeline {
 
     stage('Build Docker Images') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         script {
@@ -87,7 +97,9 @@ pipeline {
 
     stage('Push Docker Images') {
       when {
-        branch 'main'
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
       }
       steps {
         script {
