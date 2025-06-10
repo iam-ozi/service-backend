@@ -3,25 +3,18 @@ pipeline {
 
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
     SONAR_TOKEN = credentials('sonarcloud-token')
-    NEXUS_CREDS = credentials('nexus-creds')
     NEXUS_HOST = 'http://13.217.230.87:8081'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'main', url: 'https://github.com/iam-ozi/service-backend.git'
+        git branch: "${env.BRANCH_NAME}", url: 'https://github.com/iam-ozi/service-backend.git'
       }
     }
 
     stage('Build Java Backend') {
-      when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
-      }
       steps {
         dir('java-app') {
           sh '''
@@ -34,11 +27,6 @@ pipeline {
     }
 
     stage('Build Node Backend') {
-      when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
-      }
       steps {
         dir('node-app') {
           sh '''
@@ -52,9 +40,7 @@ pipeline {
 
     stage('SonarCloud Analysis') {
       when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
+        branch 'main'
       }
       steps {
         withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
@@ -65,9 +51,7 @@ pipeline {
 
     stage('Publish to Nexus') {
       when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
+        branch 'main'
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
@@ -85,11 +69,6 @@ pipeline {
     }
 
     stage('Build Docker Images') {
-      when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
-      }
       steps {
         script {
           docker.build("iamozi2025/java-ap:${IMAGE_TAG}", 'java-app')
@@ -100,16 +79,16 @@ pipeline {
 
     stage('Push Docker Images') {
       when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
+        branch 'main'
       }
       steps {
-        script {
-          docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
-            docker.image("iamozi2025/java-ap:${IMAGE_TAG}").push()
-            docker.image("iamozi2025/node-app:${IMAGE_TAG}").push()
-          }
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh '''
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker push iamozi2025/java-ap:${BUILD_NUMBER}
+            docker push iamozi2025/node-app:${BUILD_NUMBER}
+            docker logout
+          '''
         }
       }
     }
@@ -118,7 +97,9 @@ pipeline {
   post {
     always {
       script {
-        cleanWs()
+        dir("${env.WORKSPACE}") {
+          cleanWs()
+        }
       }
     }
   }
