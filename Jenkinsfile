@@ -40,7 +40,9 @@ pipeline {
 
     stage('SonarCloud Analysis') {
       when {
-        branch 'main'
+        expression {
+          env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main'
+        }
       }
       steps {
         withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
@@ -51,7 +53,9 @@ pipeline {
 
     stage('Publish to Nexus') {
       when {
-        branch 'main'
+        expression {
+          env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main'
+        }
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
@@ -79,7 +83,9 @@ pipeline {
 
     stage('Push Docker Images') {
       when {
-        branch 'main'
+        expression {
+          env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main'
+        }
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
