@@ -33,23 +33,6 @@ pipeline {
       }
     }
 
-    stage('Build Node Backend') {
-      when {
-        expression {
-          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
-        }
-      }
-      steps {
-        dir('node-app') {
-          sh '''
-            npm install
-            mkdir -p ../builds
-            tar -czf ../builds/node-app.tar.gz .
-          '''
-        }
-      }
-    }
-
     stage('SonarCloud Analysis') {
       when {
         expression {
@@ -76,11 +59,6 @@ pipeline {
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
               --upload-file builds/java-ap.jar \
               $NEXUS_HOST/repository/maven-releases/com/example/java-ap/${BUILD_NUMBER}/java-ap-${BUILD_NUMBER}.jar
-
-            # Upload Node archive
-            curl -v -u $NEXUS_USER:$NEXUS_PASS \
-              --upload-file builds/node-app.tar.gz \
-              $NEXUS_HOST/repository/raw-hosted/node-app-${BUILD_NUMBER}.tar.gz
           '''
         }
       }
