@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git branch: "${env.BRANCH_NAME}", url: 'https://github.com/iam-ozi/service-backend.git'
+        checkout scm
       }
     }
 
@@ -96,11 +96,7 @@ pipeline {
 
   post {
     always {
-      script {
-        dir("${env.WORKSPACE}") {
-          cleanWs()
-        }
-      }
+      cleanWs()
     }
   }
 }
