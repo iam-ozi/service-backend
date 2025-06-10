@@ -6,7 +6,7 @@ pipeline {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
     SONAR_TOKEN = credentials('sonarcloud-token')
     NEXUS_CREDS = credentials('nexus-creds')
-    NEXUS_HOST = 'http://54.159.41.107:8081'
+    NEXUS_HOST = 'http://13.217.230.87:8081'
   }
 
   stages {
@@ -28,6 +28,23 @@ pipeline {
             ./mvnw clean package -DskipTests
             mkdir -p ../builds
             cp target/*.jar ../builds/java-ap.jar
+          '''
+        }
+      }
+    }
+
+    stage('Build Node Backend') {
+      when {
+        expression {
+          env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main'
+        }
+      }
+      steps {
+        dir('node-app') {
+          sh '''
+            npm install
+            mkdir -p ../builds
+            tar -czf ../builds/node-app.tar.gz .
           '''
         }
       }
@@ -59,6 +76,11 @@ pipeline {
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
               --upload-file builds/java-ap.jar \
               $NEXUS_HOST/repository/maven-releases/com/example/java-ap/${BUILD_NUMBER}/java-ap-${BUILD_NUMBER}.jar
+
+            # Upload Node archive
+            curl -v -u $NEXUS_USER:$NEXUS_PASS \
+              --upload-file builds/node-app.tar.gz \
+              $NEXUS_HOST/repository/raw-hosted/node-app-${BUILD_NUMBER}.tar.gz
           '''
         }
       }
