@@ -72,12 +72,10 @@ pipeline {
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
           sh '''
-            # Upload Java JAR
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
               --upload-file builds/java-ap.jar \
               $NEXUS_HOST/repository/maven-releases/com/example/java-ap/${BUILD_NUMBER}/java-ap-${BUILD_NUMBER}.jar
 
-            # Upload Node archive
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
               --upload-file builds/node-app.tar.gz \
               $NEXUS_HOST/repository/raw-hosted/node-app-${BUILD_NUMBER}.tar.gz
@@ -119,7 +117,9 @@ pipeline {
 
   post {
     always {
-      cleanWs()
+      script {
+        cleanWs()
+      }
     }
   }
 }
