@@ -3,9 +3,9 @@ pipeline {
 
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credentials ID for DockerHub
-    SONAR_TOKEN = credentials('sonarcloud-token') // Jenkins credentials ID for SonarCloud token
-    NEXUS_CREDS = credentials('nexus-creds') // Jenkins credentials ID for Nexus user/pass
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+    SONAR_TOKEN = credentials('sonarcloud-token')
+    NEXUS_CREDS = credentials('nexus-creds')
     NEXUS_HOST = 'http://54.159.41.107:8081'
   }
 
@@ -24,8 +24,11 @@ pipeline {
       }
       steps {
         dir('java-app') {
-          sh './mvnw clean package -DskipTests'
-          sh 'cp target/*.jar ../builds/java-ap.jar'
+          sh '''
+            ./mvnw clean package -DskipTests
+            mkdir -p ../builds
+            cp target/*.jar ../builds/java-ap.jar
+          '''
         }
       }
     }
@@ -38,8 +41,11 @@ pipeline {
       }
       steps {
         dir('node-app') {
-          sh 'npm install'
-          sh 'tar -czf ../builds/node-app.tar.gz .'
+          sh '''
+            npm install
+            mkdir -p ../builds
+            tar -czf ../builds/node-app.tar.gz .
+          '''
         }
       }
     }
@@ -66,7 +72,6 @@ pipeline {
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
           sh '''
-            mkdir -p builds
             # Upload Java JAR
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
               --upload-file builds/java-ap.jar \
