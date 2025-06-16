@@ -4,7 +4,7 @@ pipeline {
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     SONAR_TOKEN = credentials('sonarcloud-token')
-    NEXUS_HOST = 'http://13.217.230.87:8081'
+    NEXUS_HOST = 'http://52.23.171.1:8081'
   }
 
   stages {
