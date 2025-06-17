@@ -75,7 +75,7 @@ pipeline {
     stage('Build Docker Images') {
       steps {
         script {
-          docker.build("iamozi2025/java-ap:${IMAGE_TAG}", '.')
+          docker.build("iamozi2025/java-ap:${IMAGE_TAG}", 'java-app')
           docker.build("iamozi2025/node-app:${IMAGE_TAG}", 'node-app')
         }
       }
