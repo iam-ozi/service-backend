@@ -4,7 +4,7 @@ pipeline {
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     SONAR_TOKEN = credentials('sonarcloud-token')
-    NEXUS_HOST = 'http://52.23.171.1:8081'
+    NEXUS_HOST = 'http://34.235.155.224:8081'
   }
 
   stages {
@@ -75,7 +75,7 @@ pipeline {
     stage('Build Docker Images') {
       steps {
         script {
-          docker.build("iamozi2025/java-ap:${IMAGE_TAG}", 'java-app')
+          docker.build("iamozi2025/java-ap:${IMAGE_TAG}", '.')
           docker.build("iamozi2025/node-app:${IMAGE_TAG}", 'node-app')
         }
       }
