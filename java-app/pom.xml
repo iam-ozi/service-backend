@@ -16,21 +16,34 @@
   </properties>
 
   <dependencies>
-    <!-- ✅ Spring Boot handles logging internally with Logback, no need to add SLF4J explicitly -->
+    <!-- ✅ Spring Boot with explicit Logback logger binding -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring.boot.version}</version>
+      <exclusions>
+        <!-- 🧹 Remove potential SLF4J API duplicates if any -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
-    <!-- ✅ JUnit 5 and Spring Boot test support -->
+    <!-- ✅ Explicit logback binding -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.4.14</version>
+    </dependency>
+
+    <!-- ✅ Test dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <version>${spring.boot.version}</version>
       <scope>test</scope>
       <exclusions>
-        <!-- 🚫 Remove conflicting old logging bindings from test scope -->
         <exclusion>
           <groupId>org.junit.vintage</groupId>
           <artifactId>junit-vintage-engine</artifactId>
