@@ -2,11 +2,11 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_TAG = "${env.BUILD_NUMBER}" // ⬅️ Used to tag Docker images
-    SONAR_TOKEN = credentials('sonarcloud-token')
-    NEXUS_HOST = 'http://54.144.217.147:8081'
-    AWS_REGION = 'us-east-1' // ⬅️ Replace with your actual AWS region
-    EKS_CLUSTER = 'eks-demo-cluster' // ⬅️ Replace with your EKS cluster name
+    IMAGE_TAG = "${env.BUILD_NUMBER}" // Unique tag for Docker images
+    SONAR_TOKEN = credentials('sonarcloud-token') // SonarCloud auth
+    NEXUS_HOST = 'http://54.144.217.147:8081' // Nexus repo URL
+    AWS_REGION = 'us-east-1' // Replace if your EKS cluster is in another region
+    EKS_CLUSTER = 'eks-demo-cluster' // Replace with your actual EKS cluster name
   }
 
   stages {
@@ -139,7 +139,7 @@ pipeline {
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
           script {
-            // ⬇️ Configure EKS access using AWS CLI (requires Jenkins node with AWS CLI + kubectl + helm installed)
+            // ⬇️ Configure kubeconfig with access to EKS
             sh '''
               aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER}
             '''
@@ -169,7 +169,7 @@ pipeline {
 
   post {
     always {
-      cleanWs() // ⬅️ Clean workspace after every run to save disk space
+      cleanWs() // Clean up workspace regardless of outcome
     }
   }
 }
