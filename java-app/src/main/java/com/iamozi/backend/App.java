@@ -21,4 +21,10 @@ public class App {
     public String ping() {
         return "pong";
     }
+
+    // ✅ NEW FEATURE: Personalized greeting endpoint
+    @GetMapping("/greet")
+    public String greet(@RequestParam(defaultValue = "Guest") String name) {
+        return "Hello, " + name + "!";
+    }
 }
