@@ -6,7 +6,7 @@ pipeline {
     SONAR_TOKEN = credentials('sonarcloud-token')
     NEXUS_HOST = 'http://54.144.217.147:8081'
     AWS_REGION = 'us-east-1' // ⬅️ Replace with your actual AWS region
-    EKS_CLUSTER = 'your-eks-cluster' // ⬅️ Replace with your EKS cluster name
+    EKS_CLUSTER = 'eks-demo-cluster' // ⬅️ Replace with your EKS cluster name
   }
 
   stages {
